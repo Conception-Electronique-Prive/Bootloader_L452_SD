@@ -1,0 +1,6 @@
+.settings
+.vscode
+[Dd]ebug
+[Rr]elease
+.mxproject
+*.launch

@@ -1,0 +1,79 @@
+﻿---
+BasedOnStyle:           Mozilla
+AccessModifierOffset:   -4
+AlignAfterOpenBracket:          Align
+AlignConsecutiveMacros:         true
+AlignConsecutiveAssignments:    true
+AlignConsecutiveDeclarations:   true
+AlignEscapedNewlines:           Right
+AlignOperands:                  true
+AlignTrailingComments:          true
+AllowShortEnumsOnASingleLine:   false
+
+AllowAllArgumentsOnNextLine:                true
+AllowAllConstructorInitializersOnNextLine:  true
+AllowAllParametersOfDeclarationOnNextLine:  true
+AllowShortBlocksOnASingleLine:              false
+AllowShortCaseLabelsOnASingleLine:          false
+AllowShortFunctionsOnASingleLine:           InlineOnly
+AllowShortIfStatementsOnASingleLine:        Never
+AllowShortLambdasOnASingleLine:             Inline
+AllowShortLoopsOnASingleLine:               false
+
+AlwaysBreakAfterDefinitionReturnType:   None
+AlwaysBreakAfterReturnType:             None
+AlwaysBreakBeforeMultilineStrings:      true
+AlwaysBreakTemplateDeclarations:        Yes
+BinPackArguments:                       false
+BinPackParameters:                      false
+
+BreakAfterJavaFieldAnnotations:         true
+BreakBeforeBinaryOperators:             None
+BreakBeforeBraces:                      Attach
+BreakBeforeTernaryOperators:            true
+BreakConstructorInitializers:           BeforeColon
+BreakInheritanceList:                   BeforeColon
+BreakStringLiterals:                    true
+
+ColumnLimit:                                    120
+CompactNamespaces:                              false
+ConstructorInitializerAllOnOneLineOrOnePerLine: true
+ConstructorInitializerIndentWidth:              0
+Cpp11BracedListStyle:                           true
+DerivePointerAlignment:                         false
+DisableFormat:                                  false
+FixNamespaceComments:                           true
+IncludeBlocks:                                  Preserve
+IndentCaseLabels:                               true
+IndentWidth:                                    4
+Language:                                       Cpp
+MaxEmptyLinesToKeep:                            4
+NamespaceIndentation:                           None
+
+PenaltyBreakBeforeFirstCallParameter:   1000
+PenaltyBreakTemplateDeclaration:        0
+PenaltyReturnTypeOnItsOwnLine:          0
+
+PointerAlignment: Left
+
+SortIncludes:           false
+SortUsingDeclarations:  true
+
+SpaceBeforeAssignmentOperators:     true
+SpaceBeforeCpp11BracedList:         false
+SpaceBeforeCtorInitializerColon:    true
+SpaceBeforeInheritanceColon:        true
+SpaceBeforeParens:                  ControlStatements
+SpaceBeforeRangeBasedForLoopColon:  true
+
+SpaceInEmptyParentheses:        false
+SpacesInAngles:                 false
+SpacesInCStyleCastParentheses:  false
+SpacesInParentheses:            false
+SpacesInSquareBrackets:         false
+
+SpacesBeforeTrailingComments:   4
+TabWidth:                       4
+UseTab:                         Never
+
+...
