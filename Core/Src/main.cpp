@@ -19,8 +19,12 @@
 /* Private macro -------------------------------------------------------------*/
 
 /* Private variables ---------------------------------------------------------*/
+constexpr char VBAR[]  = "========================================";
+constexpr char STM32[] = "L452";
+constexpr char COMM[]  = "SD";
 
 /* Private function prototypes -----------------------------------------------*/
+void print_info();
 void SystemClock_Config(void);
 void DeInit(void);
 
@@ -45,12 +49,7 @@ int main(void) {
     MX_SPI3_Init();
 
     /* Infinite loop */
-    print("\033c");    // Clear screen;
-    char boot_version[50];
-    Bootloader_GetVersion_Print(boot_version);
-    print("Bootloader: ");
-    print(boot_version);
-    print("\r\n");
+    print_info();
     if (Enter_Bootloader()) {
         print("Failed to prepare bootloader\r\n");
         Error_Handler();
@@ -133,4 +132,20 @@ void Error_Handler(void) {
     NVIC_SystemReset();
     while (1) {
     }
+}
+
+void print_info() {
+    char       version[50];
+    const char info[100] =
+      "\033c"    // Clear Terminal Screen
+      "CEP BOOTLOADER\r\n"
+      "[STM32]: %s\r\n"
+      "[COMM ]: %s\r\n"
+      "[VER  ]: %s\r\n"
+      "%s";
+    char msg[100];
+    Bootloader_GetVersion_Print(version);
+    snprintf(msg, 100, info, STM32, COMM, version, VBAR);
+    print(msg);
+    print("\r\n");
 }

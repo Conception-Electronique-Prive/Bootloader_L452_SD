@@ -19,7 +19,7 @@ Modified by CEP to support STM32L452
 7. Jump to application
 
 ## Requirements
-The firmware file must be called `firmware.bin` and must be located at the root of the SD Card
+The firmware file must be called `Scale.bin` and must be located at the root of the SD Card
 
 On the application code (not bootloader)
 

@@ -3,7 +3,7 @@
 #include "main.h"
 #include "bootloader.h"
 
-#define CONF_FILENAME "firmware.bin"
+#define CONF_FILENAME "Scale.bin"
 
 #define BLINK_FAST   100
 #define BLINK_SLOW   500
@@ -48,6 +48,8 @@ enum eApplicationErrorCodes
 
 
 void    print(const char* str);
+void    printr(const char* tag, const char* txt);
+void    println(const char* tag, const char* txt);
 bool    mount(void);
 bool    unmount(void);
 uint8_t Enter_Bootloader(void);

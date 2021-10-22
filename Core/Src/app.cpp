@@ -14,6 +14,18 @@ void print(const char* str) {
     HAL_UART_Transmit(&huart1, (uint8_t*)str, (uint16_t)strlen(str), 100);
 }
 
+void printr(const char* tag, const char* txt) {
+    char msg[80];
+    snprintf(msg, 80, "[%-4s]: %-60s\r", tag, txt);
+    print(msg);
+}
+
+void println(const char* tag, const char* txt) {
+    char msg[80];
+    snprintf(msg, 80, "[%-4s]: %-60s\r\n", tag, txt);
+    print(msg);
+}
+
 
 /**
  * @brief  This function executes the bootloader sequence.
@@ -25,68 +37,72 @@ uint8_t Enter_Bootloader(void) {
     FRESULT  fr;
     UINT     num;
     uint8_t  status;
+    size_t   size;
     uint64_t data;
     uint32_t cntr;
     uint32_t addr;
-    char     msg[40] = {0x00};
+    char     msg[100];
 
     /* Mount SD card */
+    printr("SD", "Mounting");
     fr = f_mount(&USERFatFS, (TCHAR const*)USERPath, 1);
     if (fr != FR_OK) {
         /* f_mount failed */
-        print("SD card cannot be mounted.\r\n");
-        sprintf(msg, "FatFs error code: %u\r\n", fr);
-        print(msg);
+        println("SD", "Cannot be mounted");
+        sprintf(msg, "FatFs error code: %u", fr);
+        println("SD", msg);
         return ERR_SD_MOUNT;
     }
-    print("SD mounted.\r\n");
+    println("SD", "Mounted");
 
     /* Open file for programming */
+    printr("FILE", "Loading");
     fr = f_open(&USERFile, CONF_FILENAME, FA_READ);
     if (fr != FR_OK) {
         uint8_t res;
 
         if (fr == FR_NO_FILE) {
-            print("No file to flash.\r\n");
+            println("FILE", "Nothing to flash");
             res = ERR_OK;
 
         } else {
             /* f_open failed */
-            print("File cannot be opened.\r\n");
-            sprintf(msg, "FatFs error code: %u\r\n", fr);
-            print(msg);
+            println("FILE", "Cannot be opened");
+            sprintf(msg, "FatFs error code: %u", fr);
+            println("FILE", msg);
             res = ERR_SD_FILE;
         }
 
         SD_Eject();
-        print("SD ejected.\r\n");
+        println("SD", "Ejected");
         return res;
     }
-    print("Software found on SD.\r\n");
+    println("FILE", "Found");
 
     /* Check size of application found on SD card */
-    if (Bootloader_CheckSize(f_size(&USERFile)) != BL_OK) {
-        print("Error: app on SD card is too large.\r\n");
-
+    printr("SIZE", "Checking size");
+    size = f_size(&USERFile);
+    if (Bootloader_CheckSize(size) != BL_OK) {
+        println("SIZE", "Error: too big");
         f_close(&USERFile);
         SD_Eject();
-        print("SD ejected.\r\n");
+        println("SD", "Ejected");
         return ERR_APP_LARGE;
     }
-    print("App size OK.\r\n");
+    println("SIZE", "App size OK");
 
     /* Step 1: Init Bootloader and Flash */
     Bootloader_Init();
 
     /* Step 2: Erase Flash */
-    print("Erasing flash...\r\n");
+    printr("ERAZ", "Erasing flash...");
     LED_G2_ON();
     Bootloader_Erase();
     LED_G2_OFF();
-    print("Flash erase finished.\r\n");
+    println("ERAZ", "Flash erased");
 
     /* Step 3: Programming */
-    print("Starting programming...\r\n");
+    printr("PROG", "Starting");
     LED_G1_ON();
     cntr = 0;
     Bootloader_FlashBegin();
@@ -98,20 +114,21 @@ uint8_t Enter_Bootloader(void) {
             if (status == BL_OK) {
                 cntr++;
             } else {
-                sprintf(msg, "Programming error at: %lu byte\r\n", (cntr * 8));
-                print(msg);
+                snprintf(msg, 50, "Error at: %lu byte", (cntr * 8));
+                println("PROG", msg);
 
                 f_close(&USERFile);
                 SD_Eject();
-                print("SD ejected.\r\n");
+                println("SD", "Ejected");
 
                 LED_ALL_OFF();
                 return ERR_FLASH;
             }
         }
         if (cntr % 256 == 0) {
-            /* Toggle green LED during programming */
             LED_G2_TG();
+            snprintf(msg, 50, "%2lu%% [%6lu/%6u]", cntr * 8 * 100 / size, cntr * 8, size);
+            printr("PROG", msg);
         }
     } while ((fr == FR_OK) && (num > 0));
 
@@ -119,20 +136,20 @@ uint8_t Enter_Bootloader(void) {
     Bootloader_FlashEnd();
     f_close(&USERFile);
     LED_ALL_OFF();
-    print("Programming finished.\r\n");
-    sprintf(msg, "Flashed: %lu bytes.\r\n", (cntr * 8));
-    print(msg);
+    snprintf(msg, 50, "Flashed %d bytes", size);
+    println("PROG", msg);
 
     /* Open file for verification */
+    printr("CHCK", "Checking data");
     fr = f_open(&USERFile, CONF_FILENAME, FA_READ);
     if (fr != FR_OK) {
         /* f_open failed */
-        print("File cannot be opened.\r\n");
-        sprintf(msg, "FatFs error code: %u\r\n", fr);
-        print(msg);
+        println("FILE", "Cannot be re-opened");
+        sprintf(msg, "FatFs error code: %u", fr);
+        println("FILE", msg);
 
         SD_Eject();
-        print("SD ejected.");
+        println("SD", "Ejected");
         return ERR_SD_FILE;
     }
 
@@ -147,12 +164,12 @@ uint8_t Enter_Bootloader(void) {
                 addr += 4;
                 cntr++;
             } else {
-                sprintf(msg, "Verification error at: %lu byte.\r\n", (cntr * 4));
-                print(msg);
+                snprintf(msg, 50, "Error at: %lu byte", cntr * 4);
+                println("CHCK", msg);
 
                 f_close(&USERFile);
                 SD_Eject();
-                print("SD ejected.\r\n");
+                println("SD", "Ejected");
 
                 LED_G1_OFF();
                 return ERR_VERIFY;
@@ -161,9 +178,11 @@ uint8_t Enter_Bootloader(void) {
         if (cntr % 256 == 0) {
             /* Toggle green LED during verification */
             LED_G1_TG();
+            snprintf(msg, 50, "%2lu%% [%6lu/%6u]", cntr * 4 * 100 / size, cntr * 4, size);
+            printr("CHCK", msg);
         }
     } while ((fr == FR_OK) && (num > 0));
-    print("Verification passed.\r\n");
+    println("CHCK", "Passed");
     LED_G1_OFF();
 
     /* Closing file */
@@ -176,18 +195,19 @@ uint8_t Enter_Bootloader(void) {
     }
 
     /* Erasing firmware */
-    print("Erasing firmware file.\r\n");
+    printr("FILE", "Erasing firmware file");
     fr = f_unlink(CONF_FILENAME);
     if (fr != FR_OK) {
-        print("Failed to erase file.\r\n");
+        println("FILE", "Failed to erase file");
         sprintf(msg, "FatFs error code: %u\r\n", fr);
-        print(msg);
+        println("FILE", msg);
         return ERR_FILE_DELETE;
     }
+    printr("FILE", "File erased");
 
     /* Eject SD card */
     SD_Eject();
-    print("SD ejected.\r\n");
+    println("SD", "Ejected");
     return ERR_OK;
 }
 

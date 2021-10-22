@@ -20,7 +20,7 @@
 
 /* Private defines -----------------------------------------------------------*/
 #define BOOTLOADER_VERSION_MAJOR 1 /*!< Major version */
-#define BOOTLOADER_VERSION_MINOR 0 /*!< Minor version */
+#define BOOTLOADER_VERSION_MINOR 1 /*!< Minor version */
 #define BOOTLOADER_VERSION_PATCH 0 /*!< Patch version */
 #define BOOTLOADER_VERSION_RC    0 /*!< Release candidate version */
 
@@ -313,7 +313,7 @@ void Bootloader_JumpToApplication(void) {
     SysTick->LOAD = 0;
     SysTick->VAL  = 0;
 
-//    SCB->VTOR = APP_ADDRESS;
+    //    SCB->VTOR = APP_ADDRESS;
 
     __set_MSP(*(__IO uint32_t*)APP_ADDRESS);
     Jump();
@@ -365,7 +365,8 @@ uint32_t Bootloader_GetVersion(void) {
 }
 
 void Bootloader_GetVersion_Print(char* str) {
-    sprintf(str, "%d.%d.%d.%d",
+    sprintf(str,
+            "%d.%d.%d.%d",
             BOOTLOADER_VERSION_MAJOR,
             BOOTLOADER_VERSION_MINOR,
             BOOTLOADER_VERSION_PATCH,
